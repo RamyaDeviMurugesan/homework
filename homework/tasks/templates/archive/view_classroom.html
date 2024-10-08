@@ -1,0 +1,16 @@
+<h2>School Details</h2>
+{% for classroom in classroom_details %}
+<div>
+  <p><strong>Grade</strong> {{ classroom.grade }}</p>
+
+  <p><strong>Section:</strong> {{ classroom.section }}</p>
+  {%for subject in classroom.subject%}
+  <ul>
+    <li>{{ subject }}</li>
+  </ul>
+  {% endfor %}
+  <p><strong>No of Students:</strong> {{ classroom.noOfStudents }}</p>
+</div>
+{%endfor%}
+
+<a href="{% url 'add_classroom' %}">Add Another Classroom</a>

@@ -1,0 +1,187 @@
+{% extends "base.html" %} {% block content %}
+
+<main id="main" class="main">
+  <div class="pagetitle">
+    <h1>Dashboard</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+        <li class="breadcrumb-item">Homework</li>
+        <li class="breadcrumb-item active">Add Homework</li>
+      </ol>
+    </nav>
+  </div>
+  <!-- End Page Title -->
+
+  <section class="section dashboard">
+    <div class="row">
+      <!-- Left side columns -->
+      <div class="col-lg-12">
+        <div class="row">
+          <!-- Reports -->
+          <div class="col-12">
+            <div class="card">
+              <div class="card-body">
+                <form method="POST" id="homework-form">
+                  {% csrf_token %}
+                  <div class="row mb-3">
+                    <label class="col-sm-2 col-form-label">Grade:</label>
+                    <div class="col-sm-10">
+                      <select
+                        class="form-select"
+                        aria-label="Default select example"
+                        id="id_grade"
+                        name="grade"
+                      >
+                        <option selected>--------</option>
+                        {% for grade in grades %}
+                        <option value="{{ grade }}">{{ grade }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <label class="col-sm-2 col-form-label">Section:</label>
+                    <div class="col-sm-10">
+                      <select
+                        class="form-select"
+                        aria-label="Default select example"
+                        id="id_section"
+                        name="section"
+                      >
+                        <option selected>--------</option>
+                        {% for section in sections %}
+                        <option value="{{ section }}">{{ section }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <label for="inputDate" class="col-sm-2 col-form-label"
+                      >Date</label
+                    >
+                    <div class="col-sm-10">
+                      <input
+                        type="date"
+                        class="form-control"
+                        id="homeworkdate"
+                        name="homeworkdate"
+                      />
+                    </div>
+                  </div>
+
+                  {% for subject, tasks in subjects_and_tasks.items %}
+                  <div class="row mb-3">
+                    <label for="subject" class="col-sm-2 col-form-label"
+                      >{{ subject }}</label
+                    >
+                    <div class="col-sm-10">
+                      <!-- <input type="text" class="form-control" /> -->
+                    </div>
+                    <div class="col-sm-10">
+                      <div class="tasks" id="task_list_{{ subject }}">
+                        {% for task in tasks %}
+                        <div>
+                          <input
+                            type="text"
+                            class="form-control"
+                            name="{{ task }}_{{ forloop.counter0 }}"
+                            value="{{ task }}"
+                          />
+                          <p></p>
+                        </div>
+
+                        {% endfor %}
+                      </div>
+                      <button
+                        type="button"
+                        class="btn btn-light add-task-btn rounded-pill"
+                        data-subject="{{ subject }}"
+                        name="{{ subject }}"
+                      >
+                        <i class="bi bi-plus-square me-1"></i> Add Task
+                      </button>
+                    </div>
+                  </div>
+                  {% endfor %}
+
+                  <div class="row mb-3">
+                    <div class="col-sm-10">
+                      <button type="submit" class="btn btn-primary">
+                        Submit
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <!-- End Reports -->
+        </div>
+      </div>
+      <!-- End Left side columns -->
+    </div>
+  </section>
+</main>
+<script>
+  var data = "{{subjects_and_tasks|escapejs}}";
+  data = data.replace(/'/g, '"');
+
+  const newFormData = {};
+
+  // Step 2: Parse the string to convert it into an object
+  var subjectsObj = JSON.parse(data);
+  var subjects = Object.keys(subjectsObj);
+
+  $("#homework-form").on("submit", function (e) {
+    e.preventDefault(); // Prevent default submission
+
+    var formData = $(this).serializeArray(); // Get form data
+
+    // Iterate over the form data
+    formData.forEach(function (field) {
+      var name = field.name;
+      var value = field.value;
+
+      if (!(value === "")) {
+        var subjectMatch = subjects.find(function (subject) {
+          return name.startsWith(subject);
+        });
+
+        // Check if the field is a subject task (e.g., English_1, Tamil_1)
+        if (subjectMatch) {
+          console.log(subjectMatch);
+          // If subject doesn't exist in newFormData, initialize an array for it
+          if (!newFormData[subjectMatch]) {
+            newFormData[subjectMatch] = [value];
+          } else {
+            // Add the task value to the subject's array
+            newFormData[subjectMatch].push(value);
+          }
+        } else {
+          // Otherwise, it's a regular field (like csrfmiddlewaretoken, grade, section)
+          newFormData[name] = value;
+        }
+      }
+    });
+
+    // Debug: log the new form data structure to check if it looks as expected
+    console.log(newFormData);
+
+    // Submit the modified data via AJAX or any other method as needed
+    $.ajax({
+      type: "POST",
+      url: $(this).attr("action"), // Use the form's action attribute
+      data: newFormData, // Send the modified form data
+      success: function (response) {
+        alert("Homework submitted successfully!");
+      },
+      error: function (error) {
+        alert("Error submitting homework.");
+      },
+    });
+  });
+</script>
+{% endblock %}

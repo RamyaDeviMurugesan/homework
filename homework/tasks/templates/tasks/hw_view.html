@@ -1,0 +1,79 @@
+{% extends "base.html" %} {% block content %}
+<main id="main" class="main">
+  <div class="pagetitle">
+    <h1>Homework Details</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+        <li class="breadcrumb-item">HomeWork</li>
+        <li class="breadcrumb-item active">View Homework</li>
+      </ol>
+    </nav>
+  </div>
+  <!-- End Page Title -->
+
+  <section class="section">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Homework Details</h5>
+
+            <!-- Default Accordion -->
+            <form>
+              <div class="accordion" id="accordionPanelsStayOpenExample">
+                {% for homework in homework_list %}
+                <div class="accordion-item">
+                  <h2
+                    class="accordion-header"
+                    id="panelsStayOpen-heading{{ forloop.counter0 }}"
+                  >
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#panelsStayOpen-collapse{{ forloop.counter0 }}"
+                      aria-expanded="false"
+                      aria-controls="panelsStayOpen-collapse{{ forloop.counter0 }}"
+                    >
+                      {{ homework.subject }}
+                    </button>
+                  </h2>
+                  <div
+                    id="panelsStayOpen-collapse{{ forloop.counter0 }}"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="panelsStayOpen-heading{{ forloop.counter0 }}"
+                  >
+                    <div class="accordion-body">
+                      <div class="col-sm-10">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="gridCheck1"
+                          />
+                          <label class="form-check-label" for="gridCheck1">
+                            {{ homework.tasks }}
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              <br />
+              <div class="row mb-3">
+                <div class="col-sm-10">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </div>
+            </form>
+            <!-- End Default Accordion Example -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

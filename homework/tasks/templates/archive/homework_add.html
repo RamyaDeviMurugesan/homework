@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Homework</title>
+    {% load static %}
+    <!-- Add CSS for Datepicker (Bootstrap or jQuery) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'homework_add.css' %}"
+      type="text/css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Add Homework</h1>
+
+      <form method="POST" id="homework-form">
+        {% csrf_token %}
+
+        <!-- Grade Field (Explicitly Required) -->
+        <div>
+          <label for="id_grade">Grade:</label>
+          <select id="id_grade" name="grade" required>
+            {% for grade in grades %}
+            <option value="{{ grade }}">{{ grade }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <br />
+        <!-- Section Field (Explicitly Required) -->
+        <div>
+          <label for="id_section">Section:</label>
+          <select id="id_section" name="section" required>
+            {% for section in sections %}
+            <option value="{{ section }}">{{ section }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <br />
+        <!-- Homework Date Field (With Datepicker) -->
+        <div>
+          <label for="id_homeworkdate">Homework Date:</label>
+          <input type="text" id="homeworkdate" name="homeworkdate" required />
+        </div>
+
+        <br />
+        <!-- Dynamic Subject and Tasks Section -->
+        <div id="dynamic-subjects">
+          <!-- This part will be dynamically rendered from the view -->
+          {% for subject, tasks in subjects_and_tasks.items %}
+          <fieldset>
+            <legend>{{ subject }}</legend>
+
+            <!-- Task Section for Each Subject (Dynamic Task Fields) -->
+            <div class="tasks" id="task_list_{{ subject }}">
+              {% for task in tasks %}
+              <div>
+                <input
+                  type="text"
+                  name="{{ task }}_{{ forloop.counter0 }}"
+                  value="{{ task }}"
+                  required
+                />
+              </div>
+              {% endfor %}
+            </div>
+
+            <!-- Button to Add More Tasks -->
+            <button
+              type="button"
+              class="add-task-btn"
+              data-subject="{{ subject }}"
+              name="{{subject}}"
+            >
+              + Add Task
+            </button>
+          </fieldset>
+          {% endfor %}
+        </div>
+        <br />
+        <button type="submit">Submit Homework</button>
+      </form>
+    </div>
+
+    <script>
+      // Initialize Datepicker for the Homework Date field
+      $(document).ready(function () {
+        $("#homeworkdate").datepicker({
+          dateFormat: "yy-mm-dd",
+          minDate: 0, // Prevent selecting past dates
+        });
+      });
+
+      // Dynamic task addition logic
+      $(".add-task-btn").on("click", function () {
+        var subject = $(this).data("subject");
+        var taskList = $("#task_list_" + subject);
+
+        var taskCount = taskList.children().length + 1;
+        var newTaskField = `<div><input type="text" name="${subject}" required> <span class="required-field">*</span></div>`;
+
+        taskList.append(newTaskField);
+      });
+
+      var data = "{{subjects_and_tasks|escapejs}}";
+      data = data.replace(/'/g, '"');
+
+      const newFormData = {};
+
+      // Step 2: Parse the string to convert it into an object
+      var subjectsObj = JSON.parse(data);
+      var subjects = Object.keys(subjectsObj);
+      $("#homework-form").on("submit", function (e) {
+        e.preventDefault(); // Prevent default submission
+
+        var formData = $(this).serializeArray(); // Get form data
+
+        // Iterate over the form data
+        formData.forEach(function (field) {
+          var name = field.name;
+          var value = field.value;
+
+          var subjectMatch = subjects.find(function (subject) {
+            return name.startsWith(subject);
+          });
+
+          // Check if the field is a subject task (e.g., English_1, Tamil_1)
+          if (subjectMatch) {
+            console.log(subjectMatch);
+            // If subject doesn't exist in newFormData, initialize an array for it
+            if (!newFormData[subjectMatch]) {
+              newFormData[subjectMatch] = [value];
+            } else {
+              // Add the task value to the subject's array
+              newFormData[subjectMatch].push(value);
+            }
+          } else {
+            // Otherwise, it's a regular field (like csrfmiddlewaretoken, grade, section)
+            newFormData[name] = value;
+          }
+        });
+
+        // Debug: log the new form data structure to check if it looks as expected
+        console.log(newFormData);
+
+        // Submit the modified data via AJAX or any other method as needed
+        $.ajax({
+          type: "POST",
+          url: $(this).attr("action"), // Use the form's action attribute
+          data: newFormData, // Send the modified form data
+          success: function (response) {
+            alert("Homework submitted successfully!");
+          },
+          error: function (error) {
+            alert("Error submitting homework.");
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

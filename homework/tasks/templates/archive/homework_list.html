@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Homework</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <h1>Homework List</h1>
+    <form method="POST" id="homework-view">
+      {% csrf_token %}
+
+      <div>
+        <label for="id_grade">Grade:</label>
+        <select id="id_grade" name="grade" required>
+          {% for grade in homework_list.grade %}
+          <option value="{{ grade }}">{{ grade }}</option>
+          {% endfor %}
+        </select>
+        <span class="required-field">*</span>
+      </div>
+      <br />
+
+      <div>
+        <label for="id_section">Section:</label>
+        <select id="id_section" name="section" required>
+          {% for section in homework_list.section %}
+          <option value="{{ section }}">{{ section }}</option>
+          {% endfor %}
+        </select>
+        <span class="required-field">*</span>
+      </div>
+      <br />
+
+      <div>
+        <label for="id_hwDate">HomeWork Date:</label>
+        <select id="id_hwDate" name="hwDate" required>
+          {% for hwDate in homework_list.hwDate %}
+          <option value="{{ hwDate|date:'Y-m-d'  }}">
+            {{ hwDate|date:'Y-m-d' }}
+          </option>
+          {% endfor %}
+        </select>
+        <span class="required-field">*</span>
+      </div>
+      <br />
+
+      <button type="submit">Search</button>
+    </form>
+
+    <div id="homework-list">
+      <!-- This will be dynamically populated -->
+    </div>
+
+    <script>
+      // Handle form submission via AJAX
+      $("#homework-view").on("submit", function (event) {
+        event.preventDefault(); // Prevent form from submitting the traditional way
+        $.ajax({
+          url: '{% url "view_homework" %}', // The URL to handle the form submission
+          type: "POST",
+          data: $(this).serialize(), // Serialize the form data
+          dataType: "json",
+          success: function (response) {
+            // Clear the current list
+            $("#homework-list").empty();
+            console.log(response);
+
+            // Check if response contains homework data
+            if (response.length > 0) {
+              // Loop through the response data and append each homework item as a div
+              response.forEach(function (homework) {
+                var homeworkHtml = `
+                  <div class="homework-item">
+                    <p><strong>Subject:</strong> ${homework.subject}</p>
+                    <p><strong>Tasks:</strong> ${homework.tasks}</p>
+                  </div>
+                  <hr>`;
+                // Append the constructed HTML to the #homework-list div
+                $("#homework-list").append(homeworkHtml);
+              });
+            } else {
+              $("#homework-list").html(
+                "<p>No homework found for the selected criteria.</p>"
+              );
+            }
+          },
+          error: function (xhr, status, error) {
+            console.error("Form submission error:", status, error);
+          },
+        });
+      });
+
+      // Optional: Hide the list when inputs change
+      $("#id_grade, #id_section, #id_hwDate").on("change", function () {
+        $("#homework-list").html(""); // Clear the homework list when inputs change
+      });
+    </script>
+  </body>
+</html>

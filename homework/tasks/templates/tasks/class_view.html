@@ -1,0 +1,66 @@
+{% extends "base.html" %} {% block content %}
+
+<main id="main" class="main">
+  <div class="pagetitle">
+    <h1>ClassRoom</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+        <li class="breadcrumb-item">Classroom</li>
+        <li class="breadcrumb-item active">View Classroom</li>
+      </ol>
+    </nav>
+  </div>
+  <!-- End Page Title -->
+
+  <section class="section dashboard">
+    <div class="row">
+      <!-- Left side columns -->
+      <div class="col-lg-12">
+        <div class="row">
+          <!-- Reports -->
+          <div class="col-12">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Classroom</h5>
+                <!-- Bordered Table -->
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Grade</th>
+                      <th scope="col">Section</th>
+                      <th scope="col">Subject</th>
+                      <th scope="col">No of Students</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for classroom in classroom_details %}
+                    <tr>
+                      <th scope="row">{{ forloop.counter0 }}</th>
+                      <td>{{ classroom.grade }}</td>
+                      <td>{{ classroom.section }}</td>
+                      <td>
+                        <ul class="list-group">
+                          {%for subject in classroom.subject%}
+                          <li class="list-group-item">{{ subject }}</li>
+                          {%endfor%}
+                        </ul>
+                      </td>
+                      <td>{{ classroom.noOfStudents }}</td>
+                    </tr>
+                    {%endfor%}
+                  </tbody>
+                </table>
+                <!-- End Bordered Table -->
+              </div>
+            </div>
+          </div>
+          <!-- End Reports -->
+        </div>
+      </div>
+      <!-- End Left side columns -->
+    </div>
+  </section>
+</main>
+{% endblock %}

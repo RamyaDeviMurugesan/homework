@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Classroom</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  </head>
+  <body>
+    <h1>Add Classroom</h1>
+    <form method="POST" id="add-classroom">
+      {% csrf_token %}
+
+      <div>
+        <label for="id_grade">Grade:</label>
+        <select id="id_grade" name="grade" required>
+          {% for grade in grades %}
+          <option value="{{ grade }}">{{ grade }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <br />
+      <!-- Section Field (Explicitly Required) -->
+      <div>
+        <label for="id_section">Section:</label>
+        <select id="id_section" name="section" required>
+          {% for section in sections %}
+          <option value="{{ section }}">{{ section }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <br />
+      {% for subject in subjects %}
+      <input
+        type="checkbox"
+        id="{{ subject }}"
+        name="Subject"
+        value="{{ subject }}"
+      />
+      <label for="{{ subject }}"> {{ subject }}</label>
+      <br />
+      {%endfor%}
+
+      <br />
+      <button type="submit">Add Classroom</button>
+    </form>
+    <script>
+      $("#add-classroom").on("submit", function (e) {
+        $.ajax({
+          type: "POST",
+          url: $(this).attr("action"), // Use the form's action attribute
+          data: $(this).serializeArray(), // Send the modified form data
+        });
+      });
+    </script>
+  </body>
+</html>
