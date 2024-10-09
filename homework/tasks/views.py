@@ -3,6 +3,7 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, View
 from .models import HomeWork
+from django.template.loader import render_to_string
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .configs import subject_list, grades, sections, fields_for_homework_view
 from .utils import format_post_data
@@ -77,8 +78,17 @@ class HomeWorkListView(ListView):
         section = request.POST.get('section')
         hwDate = request.POST.get('hwDate')
         homework_list_by_date = HomeWorkDAO.get_homework_by_date(user, grade, section, hwDate)
-        print(homework_list_by_date)
-        return render(request, 'tasks/hw_view.html', {"homework_list": homework_list_by_date})
+        homework_list = {}
+        for homework in homework_list_by_date:
+            if homework['subject'] not in homework_list:
+                homework_list[homework['subject']] = []
+            homework_list[homework['subject']].append(homework['tasks'])
+        response_html = render_to_string('tasks/hw_view.html', {
+                'homework_list': homework_list,
+                # Include any other context data you need
+            })
+        # return render(request, 'tasks/hw_view.html', {"homework_list": homework_list})
+        return JsonResponse({'success': True, 'html': response_html})
 
 class HomeView(View):
     def get(self, request):

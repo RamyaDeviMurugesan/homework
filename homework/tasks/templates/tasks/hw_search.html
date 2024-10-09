@@ -21,7 +21,7 @@
           <div class="col-12">
             <div class="card">
               <div class="card-body">
-                <form method="POST" id="add-classroom">
+                <form method="POST" id="hw-search">
                   {% csrf_token %}
                   <div class="row mb-3">
                     <label class="col-sm-2 col-form-label">Grade:</label>
@@ -92,5 +92,43 @@
       <!-- End Left side columns -->
     </div>
   </section>
+  <div id="homework_details"></div>
 </main>
+<script>
+  // Handle form submission via AJAX
+  $("#hw-search").on("submit", function (event) {
+    event.preventDefault(); // Prevent form from submitting the traditional way
+    $.ajax({
+      url: '{% url "view_homework" %}', // The URL to handle the form submission
+      type: "POST",
+      data: $(this).serialize(), // Serialize the form data
+      dataType: "json",
+      success: function (response) {
+        if (response.success) {
+          console.log(response);
+          // Populate the div with the returned HTML
+          $("#homework_details").html(response.html);
+        } else {
+          // Handle form errors
+          let errorMessages = "";
+          $.each(response.errors, function (field, errors) {
+            errorMessages += errors.join(", ") + "<br>";
+          });
+          $("#homework_details").html("<p>Error: " + errorMessages + "</p>");
+        }
+      },
+      error: function (xhr) {
+        // Handle any AJAX errors
+        $("#homework_details").html(
+          "<p>Error occurred while submitting the form.</p>"
+        );
+      },
+    });
+  });
+
+  // Optional: Hide the list when inputs change
+  $("#id_grade, #id_section, #id_hwDate").on("change", function () {
+    $("#homework_details").html(""); // Clear the homework list when inputs change
+  });
+</script>
 {% endblock %}
