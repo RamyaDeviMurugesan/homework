@@ -11,7 +11,6 @@ urlpatterns = [
     path('view-homework/', HomeWorkListView.as_view(), name='view_homework'),
     path('add-classroom/', AddClassroomView.as_view(), name='add_classroom'),
     path('view-classroom/', ViewClassRoom.as_view(), name='view_classroom'),
-    path('home/', HomeView.as_view(), name='home'),
 ]
 
 if settings.DEBUG:

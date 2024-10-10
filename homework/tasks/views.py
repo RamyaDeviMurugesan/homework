@@ -92,7 +92,7 @@ class HomeWorkListView(ListView):
 
 class HomeView(View):
     def get(self, request):
-        return render(request, 'home.html')
+        return render(request, 'tasks/home.html')
 
 
 class AddClassroomView(LoginRequiredMixin, View):
