@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import HomeWorkCreateView, HomeWorkListView, AddClassroomView, ViewClassRoom, HomeView
+from .views import HomeWorkCreateView, HomeWorkListView, AddClassroomView, ViewClassRoom, HomeWorkSubmitView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -9,6 +9,7 @@ urlpatterns = [
     # path('complete/<int:pk>/', TaskCompleteView.as_view(), name='complete_task'),
     path('add-homework/', HomeWorkCreateView.as_view(), name='add_homework'),
     path('view-homework/', HomeWorkListView.as_view(), name='view_homework'),
+    path('submit-homework/', HomeWorkSubmitView.as_view(), name='submit_homework'),
     path('add-classroom/', AddClassroomView.as_view(), name='add_classroom'),
     path('view-classroom/', ViewClassRoom.as_view(), name='view_classroom'),
 ]

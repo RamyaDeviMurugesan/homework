@@ -69,7 +69,6 @@ class HomeWorkListView(ListView):
                 homework_list['section'].append(homework['section'])
             if homework['hwDate'] not in homework_list['hwDate']:
                 homework_list['hwDate'].append(homework['hwDate'])
-        print(homework_list)
         return render(request, 'tasks/hw_search.html', {"homework_list": homework_list})
     
     def post(self, request):
@@ -82,13 +81,22 @@ class HomeWorkListView(ListView):
         for homework in homework_list_by_date:
             if homework['subject'] not in homework_list:
                 homework_list[homework['subject']] = []
-            homework_list[homework['subject']].append(homework['tasks'])
-        response_html = render_to_string('tasks/hw_view.html', {
-                'homework_list': homework_list,
-                # Include any other context data you need
-            })
-        # return render(request, 'tasks/hw_view.html', {"homework_list": homework_list})
+            homework_list[homework['subject']].append({homework['id']: homework['tasks']})
+        response_html = render_to_string('tasks/hw_view.html', context={'homework_list': homework_list}, request=request)
         return JsonResponse({'success': True, 'html': response_html})
+
+class HomeWorkSubmitView(View):
+    def post(self, request, *args, **kwargs):
+        selected_tasks = request.POST.getlist('selected_tasks')
+
+        # Process the selected tasks, e.g., split the value into subject and task ID
+        processed_tasks = []
+        for task in selected_tasks:
+            subject, task_id = task.split('-')
+            processed_tasks.append({'subject': subject, 'task_id': task_id})
+        
+        return JsonResponse({'success': True})
+        
 
 class HomeView(View):
     def get(self, request):
@@ -111,7 +119,6 @@ class AddClassroomView(LoginRequiredMixin, View):
         for sub in subjects:
             sub_bit += subject_list[sub]
         form_data['sub_bit'] = sub_bit
-        print(form_data)
         SchoolDetailsDAO(form_data).create_classroom()
         
         # Render the template showing the added classroom
@@ -120,7 +127,6 @@ class AddClassroomView(LoginRequiredMixin, View):
 
 class ViewClassRoom(View):
     def get(self, request):
-       print(request.user.id)
        classroom_details = SchoolDetailsDAO.get_all_classrooms()
        for classroom in classroom_details:
         sub_list = []

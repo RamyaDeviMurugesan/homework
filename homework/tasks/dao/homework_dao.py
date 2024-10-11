@@ -29,6 +29,7 @@ class HomeWorkDAO:
                 'hwDate': homework.hwDate.strftime("%Y-%m-%d"),
                 'subject': homework.subject,
                 'tasks': homework.tasks,
+                'id': homework.id
             }
             for homework in homework_queryset
             ]
@@ -38,5 +39,4 @@ class HomeWorkDAO:
         return HomeWork.objects.filter(grade=grade, section=section)
     
     def get_homework_by_user(user):
-        # print(HomeWork.objects.filter(added_by=user))
         return HomeWork.objects.filter(added_by=user).values('hwDate', 'grade', 'section')

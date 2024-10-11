@@ -105,7 +105,6 @@
       dataType: "json",
       success: function (response) {
         if (response.success) {
-          console.log(response);
           // Populate the div with the returned HTML
           $("#homework_details").html(response.html);
         } else {
@@ -129,6 +128,36 @@
   // Optional: Hide the list when inputs change
   $("#id_grade, #id_section, #id_hwDate").on("change", function () {
     $("#homework_details").html(""); // Clear the homework list when inputs change
+  });
+
+  $(document).on("submit", "#hw-submit", function (event) {
+    event.preventDefault(); // Prevent form from submitting the traditional way
+    $.ajax({
+      url: '{% url "submit_homework" %}', // The URL to handle the form submission
+      type: "POST",
+      data: $(this).serialize(), // Serialize the form data
+      dataType: "json",
+      success: function (response) {
+        if (response.success) {
+          // Populate the div with the returned HTML
+          alert("Homework submitted");
+          location.reload();
+        } else {
+          // Handle form errors
+          let errorMessages = "";
+          $.each(response.errors, function (field, errors) {
+            errorMessages += errors.join(", ") + "<br>";
+          });
+          $("#homework_details").html("<p>Error: " + errorMessages + "</p>");
+        }
+      },
+      error: function (xhr) {
+        // Handle any AJAX errors
+        $("#homework_details").html(
+          "<p>Error occurred while submitting the form.</p>"
+        );
+      },
+    });
   });
 </script>
 {% endblock %}
