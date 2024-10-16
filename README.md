@@ -12,6 +12,9 @@ Postgres Start:
       docker run --name my_postgres_container -p 5432:5432 -d custom-postgres
       docker exec -it my_postgres_container psql -U admin -d school
 
+Redis Start:
+  - docker run --name my-redis -p 6379:6379 -d redis
+
 Application start:
   - python manage.py makemigrations
   - python manage.py migrate
