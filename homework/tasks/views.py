@@ -10,7 +10,7 @@ from .utils import format_post_data
 from tasks.dao.school_details_dao import SchoolDetailsDAO
 from tasks.dao.homework_dao import HomeWorkDAO
 import datetime
-import json
+from redis import Redis
 
 class HomeWorkCreateView(ListView):
 
@@ -78,10 +78,15 @@ class HomeWorkListView(ListView):
         hwDate = request.POST.get('hwDate')
         homework_list_by_date = HomeWorkDAO.get_homework_by_date(user, grade, section, hwDate)
         homework_list = {}
+        redis = Redis(host='localhost', port=6379)
+
         for homework in homework_list_by_date:
             if homework['subject'] not in homework_list:
                 homework_list[homework['subject']] = []
-            homework_list[homework['subject']].append({homework['id']: homework['tasks']})
+            isDone = False
+            if redis.sismember(str(homework['id']) + "_Completed", request.user.id):
+                isDone = True
+            homework_list[homework['subject']].append({homework['id']: [homework['tasks'],isDone]})
         response_html = render_to_string('tasks/hw_view.html', context={'homework_list': homework_list}, request=request)
         return JsonResponse({'success': True, 'html': response_html})
 
@@ -94,6 +99,8 @@ class HomeWorkSubmitView(View):
         for task in selected_tasks:
             subject, task_id = task.split('-')
             processed_tasks.append({'subject': subject, 'task_id': task_id})
+
+        print(processed_tasks)
         
         return JsonResponse({'success': True})
         

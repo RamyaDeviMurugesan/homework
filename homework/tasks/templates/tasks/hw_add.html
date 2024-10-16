@@ -177,9 +177,11 @@
       data: newFormData, // Send the modified form data
       success: function (response) {
         alert("Homework submitted successfully!");
+        location.reload();
       },
       error: function (error) {
         alert("Error submitting homework.");
+        location.reload();
       },
     });
   });

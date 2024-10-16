@@ -45,12 +45,21 @@
                           id="gridCheck{{ forloop.counter0 }}"
                           value="{{ subject }}-{{ id }}"
                           name="selected_tasks"
+                          {%
+                          if
+                          value.1
+                          %}
+                          checked
+                          disabled
+                          {%
+                          endif
+                          %}
                         />
                         <label
                           class="form-check-label"
                           for="gridCheck{{ forloop.counter0 }}"
                         >
-                          {{ value }}
+                          {{ value.0 }}
                         </label>
                       </div>
                     </div>
